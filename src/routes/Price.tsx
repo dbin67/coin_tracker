@@ -43,34 +43,46 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 
 	const change15m = isNaN(livePrice!)
 		? data?.quotes.USD.percent_change_15m
-		: ((data?.quotes.USD.percent_change_15m! + 1) * data?.quotes.USD.price!) /
+		: (((data?.quotes.USD.percent_change_15m! / 100 + 1) *
+				data?.quotes.USD.price!) /
 				livePrice! -
-		  1;
+				1) *
+		  100;
 	const change1h = isNaN(livePrice!)
 		? data?.quotes.USD.percent_change_1h
-		: ((data?.quotes.USD.percent_change_1h! + 1) * data?.quotes.USD.price!) /
+		: (((data?.quotes.USD.percent_change_1h! / 100 + 1) *
+				data?.quotes.USD.price!) /
 				livePrice! -
-		  1;
+				1) *
+		  100;
 	const change24h = isNaN(livePrice!)
 		? data?.quotes.USD.percent_change_24h
-		: ((data?.quotes.USD.percent_change_24h! + 1) * data?.quotes.USD.price!) /
+		: (((data?.quotes.USD.percent_change_24h! / 100 + 1) *
+				data?.quotes.USD.price!) /
 				livePrice! -
-		  1;
+				1) *
+		  100;
 	const change7d = isNaN(livePrice!)
 		? data?.quotes.USD.percent_change_7d
-		: ((data?.quotes.USD.percent_change_7d! + 1) * data?.quotes.USD.price!) /
+		: (((data?.quotes.USD.percent_change_7d! / 100 + 1) *
+				data?.quotes.USD.price!) /
 				livePrice! -
-		  1;
+				1) *
+		  100;
 	const change30d = isNaN(livePrice!)
 		? data?.quotes.USD.percent_change_30d
-		: ((data?.quotes.USD.percent_change_30d! + 1) * data?.quotes.USD.price!) /
+		: (((data?.quotes.USD.percent_change_30d! / 100 + 1) *
+				data?.quotes.USD.price!) /
 				livePrice! -
-		  1;
+				1) *
+		  100;
 	const change1y = isNaN(livePrice!)
 		? data?.quotes.USD.percent_change_1y
-		: ((data?.quotes.USD.percent_change_1y! + 1) * data?.quotes.USD.price!) /
+		: (((data?.quotes.USD.percent_change_1y! / 100 + 1) *
+				data?.quotes.USD.price!) /
 				livePrice! -
-		  1;
+				1) *
+		  100;
 
 	return (
 		<>
@@ -82,7 +94,7 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 						<p>compare to last 15m</p>
 						<Change isHigher={change15m! > 0}>
 							<span style={{ marginRight: "18px" }}>
-								{change15m?.toFixed(4)}%
+								{change15m?.toFixed(3)}%
 							</span>
 							<FontAwesomeIcon
 								icon={change15m! > 0 ? solid("up-long") : solid("down-long")}
@@ -93,7 +105,7 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 						<p>compare to last 1h</p>
 						<Change isHigher={change1h! > 0}>
 							<span style={{ marginRight: "18px" }}>
-								{change1h?.toFixed(4)}%
+								{change1h?.toFixed(3)}%
 							</span>
 							<FontAwesomeIcon
 								icon={change1h! > 0 ? solid("up-long") : solid("down-long")}
@@ -104,7 +116,7 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 						<p>compare to last 24h</p>
 						<Change isHigher={change24h! > 0}>
 							<span style={{ marginRight: "18px" }}>
-								{change24h?.toFixed(4)}%
+								{change24h?.toFixed(3)}%
 							</span>
 							<FontAwesomeIcon
 								icon={change24h! > 0 ? solid("up-long") : solid("down-long")}
@@ -115,7 +127,7 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 						<p>compare to last 7d</p>
 						<Change isHigher={change7d! > 0}>
 							<span style={{ marginRight: "18px" }}>
-								{change7d?.toFixed(4)}%
+								{change7d?.toFixed(3)}%
 							</span>
 							<FontAwesomeIcon
 								icon={change7d! > 0 ? solid("up-long") : solid("down-long")}
@@ -126,7 +138,7 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 						<p>compare to last 30d</p>
 						<Change isHigher={change30d! > 0}>
 							<span style={{ marginRight: "18px" }}>
-								{change30d?.toFixed(4)}%
+								{change30d?.toFixed(3)}%
 							</span>
 							<FontAwesomeIcon
 								icon={change30d! > 0 ? solid("up-long") : solid("down-long")}
@@ -137,7 +149,7 @@ const Price = React.memo(function Price({ coinId, livePrice }: PriceProps) {
 						<p>compare to last 1y</p>
 						<Change isHigher={change1y! > 0}>
 							<span style={{ marginRight: "18px" }}>
-								{change1y?.toFixed(4)}%
+								{change1y?.toFixed(3)}%
 							</span>
 							<FontAwesomeIcon
 								icon={change1y! > 0 ? solid("up-long") : solid("down-long")}
