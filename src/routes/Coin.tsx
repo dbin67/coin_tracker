@@ -198,12 +198,14 @@ function Coin() {
 	);
 
 	const [livePrice, setLivePrice] = useState<number>();
-	const { sendJsonMessage, lastJsonMessage, readyState } =
-		useWebSocket<ILivePrice>("wss://stream.binance.com:9443/stream", {
+	const { sendJsonMessage } = useWebSocket<ILivePrice>(
+		"wss://stream.binance.com:9443/stream",
+		{
 			onMessage: (res) => {
 				setLivePrice(Number(JSON.parse(res?.data).data?.p));
 			},
-		});
+		}
+	);
 
 	const Subsribe = useCallback(
 		() =>
@@ -212,7 +214,7 @@ function Coin() {
 				params: [`${coinId!.split("-")[0]}usdt@trade`],
 				id: 1,
 			}),
-		[sendJsonMessage]
+		[sendJsonMessage, coinId]
 	);
 
 	const Unsubsribe = useCallback(
@@ -222,13 +224,13 @@ function Coin() {
 				params: [`${coinId!.split("-")[0]}usdt@trade`],
 				id: 1,
 			}),
-		[sendJsonMessage]
+		[sendJsonMessage, coinId]
 	);
 
 	useEffect(() => {
 		Subsribe();
 		return Unsubsribe;
-	}, []);
+	}, [Subsribe, Unsubsribe]);
 
 	const loading = infoLoading || tickersLoading;
 	return (

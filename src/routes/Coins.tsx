@@ -1,8 +1,10 @@
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
+import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import styled from "styled-components";
 import { fetchCoins } from "../api";
 import { Back } from "./Coin";
@@ -57,7 +59,14 @@ const Img = styled.img`
 	margin-right: 10px;
 `;
 
-interface ICoin {
+const CoinInfo = styled.div`
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100%;
+`;
+
+export interface ICoin {
 	id: string;
 	name: string;
 	symbol: string;
@@ -67,8 +76,64 @@ interface ICoin {
 	type: string;
 }
 
+interface IminiTicker {
+	[k: string]: any;
+	e: string;
+	E: number;
+	s: string;
+	c: string;
+	o: string;
+	h: string;
+	l: string;
+	v: string;
+	q: string;
+}
+
 function Coins() {
 	const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
+	const tickerRef = useRef(new Map<string, HTMLElement | null>());
+	const { sendJsonMessage } = useWebSocket<IminiTicker[]>(
+		"wss://stream.binance.com:9443/stream",
+		{
+			onMessage: (res) => {
+				const data = JSON.parse(res?.data).data;
+				const symbol = data?.s.slice(0, -4);
+				if (tickerRef.current.has(symbol)) {
+					tickerRef.current.get(symbol)!.innerText =
+						"$" + Number(data?.c).toFixed(3);
+				}
+			},
+		}
+	);
+	const Subsribe = useCallback(
+		() =>
+			sendJsonMessage({
+				method: "SUBSCRIBE",
+				params: data?.map(
+					(coin) => `${coin.symbol.toLowerCase()}usdt@miniTicker`
+				),
+				id: 1,
+			}),
+		[sendJsonMessage, data]
+	);
+
+	const Unsubsribe = useCallback(
+		() =>
+			sendJsonMessage({
+				method: "UNSUBSCRIBE",
+				params: data?.map(
+					(coin) => `${coin.symbol.toLowerCase()}usdt@miniTicker`
+				),
+				id: 1,
+			}),
+		[sendJsonMessage, data]
+	);
+
+	useEffect(() => {
+		Subsribe();
+		return Unsubsribe;
+	}, [Subsribe, Unsubsribe]);
+
 	return (
 		<Container>
 			<Helmet>
@@ -87,7 +152,7 @@ function Coins() {
 				<Loader>Loading...</Loader>
 			) : (
 				<CoinsList>
-					{data?.slice(0, 100).map((coin) => (
+					{data?.map((coin) => (
 						<Coin key={coin.id}>
 							<Link
 								to={{
@@ -98,7 +163,14 @@ function Coins() {
 								<Img
 									src={`https://coinicons-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
 								/>
-								{coin.name}
+								<CoinInfo>
+									<div>
+										{coin.name} ({coin.symbol})
+									</div>
+									<div ref={(el) => tickerRef.current.set(coin.symbol, el)}>
+										-
+									</div>
+								</CoinInfo>
 							</Link>
 						</Coin>
 					))}
