@@ -1,6 +1,6 @@
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
@@ -100,7 +100,7 @@ function Coins() {
 				const symbol = data?.s.slice(0, -4);
 				if (tickerRef.current.has(symbol)) {
 					tickerRef.current.get(symbol)!.innerText =
-						"$" + Number(data?.c).toFixed(3);
+						"$" + Number(data?.p).toFixed(3);
 				}
 			},
 		}
@@ -109,9 +109,7 @@ function Coins() {
 		() =>
 			sendJsonMessage({
 				method: "SUBSCRIBE",
-				params: data?.map(
-					(coin) => `${coin.symbol.toLowerCase()}usdt@miniTicker`
-				),
+				params: data?.map((coin) => `${coin.symbol.toLowerCase()}usdt@trade`),
 				id: 1,
 			}),
 		[sendJsonMessage, data]
@@ -121,9 +119,7 @@ function Coins() {
 		() =>
 			sendJsonMessage({
 				method: "UNSUBSCRIBE",
-				params: data?.map(
-					(coin) => `${coin.symbol.toLowerCase()}usdt@miniTicker`
-				),
+				params: data?.map((coin) => `${coin.symbol.toLowerCase()}usdt@trade`),
 				id: 1,
 			}),
 		[sendJsonMessage, data]
