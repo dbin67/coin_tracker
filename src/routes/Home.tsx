@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { fetchAllCoinTickers, fetchCoinTickers } from "../api";
+import { fetchAllCoinTickers } from "../api";
 import { Loader, PriceData } from "./Coin";
 import { Header, Title } from "./Coins";
 import ApexChart from "react-apexcharts";
@@ -37,7 +37,6 @@ export function Home() {
 	const { isLoading, data } = useQuery<PriceData[]>(["tickers"], () =>
 		fetchAllCoinTickers()
 	);
-	console.log(data?.slice(0, 100));
 	return (
 		<>
 			<Header>
@@ -61,7 +60,7 @@ export function Home() {
 								}}
 								series={[
 									{
-										data: data?.slice(0, 50).map((coin) => {
+										data: data?.map((coin) => {
 											return { x: coin.name, y: coin.quotes.USD.market_cap };
 										}),
 									},

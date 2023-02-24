@@ -6,8 +6,8 @@ import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import styled from "styled-components";
-import { fetchCoins } from "../api";
-import { Back } from "./Coin";
+import { fetchAllCoinTickers } from "../api";
+import { Back, PriceData } from "./Coin";
 
 const Container = styled.div`
 	padding: 0px 20px;
@@ -66,16 +66,6 @@ const CoinInfo = styled.div`
 	width: 100%;
 `;
 
-export interface ICoin {
-	id: string;
-	name: string;
-	symbol: string;
-	rank: number;
-	is_new: boolean;
-	is_active: boolean;
-	type: string;
-}
-
 interface IminiTicker {
 	[k: string]: any;
 	e: string;
@@ -90,7 +80,9 @@ interface IminiTicker {
 }
 
 function Coins() {
-	const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
+	const { isLoading, data } = useQuery<PriceData[]>(["tickers"], () =>
+		fetchAllCoinTickers()
+	);
 	const tickerRef = useRef(new Map<string, HTMLElement | null>());
 	const { sendJsonMessage } = useWebSocket<IminiTicker[]>(
 		"wss://stream.binance.com:9443/stream",
@@ -98,7 +90,7 @@ function Coins() {
 			onMessage: (res) => {
 				const data = JSON.parse(res?.data).data;
 				const symbol = data?.s.slice(0, -4);
-				if (tickerRef.current.has(symbol)) {
+				if (tickerRef.current.has(symbol) && data?.p) {
 					tickerRef.current.get(symbol)!.innerText =
 						"$" + Number(data?.p).toFixed(3);
 				}
@@ -128,7 +120,7 @@ function Coins() {
 	useEffect(() => {
 		Subsribe();
 		return Unsubsribe;
-	}, [Subsribe, Unsubsribe]);
+	}, [Subsribe, Unsubsribe, data]);
 
 	return (
 		<Container>
@@ -164,7 +156,10 @@ function Coins() {
 										{coin.name} ({coin.symbol})
 									</div>
 									<div ref={(el) => tickerRef.current.set(coin.symbol, el)}>
-										-
+										${" "}
+										{coin.quotes.USD.price > 0.001
+											? coin.quotes.USD.price.toFixed(2)
+											: coin.quotes.USD.price.toFixed(6)}
 									</div>
 								</CoinInfo>
 							</Link>
